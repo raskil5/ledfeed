@@ -40,9 +40,23 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
-	# Post-install script
-	$(INSTALL_DIR) $(1)/CONTROL
-	$(INSTALL_BIN) ./files/postinst $(1)/CONTROL/postinst
+	# Fix permissions for scripts so they're executable
+	chmod +x $(1)/etc/init.d/s12-pro-signald
+	chmod +x $(1)/sbin/s12-pro-signald
+	chmod +x $(1)/sbin/update_s12_leds
+	# Post-install script handled by OpenWrt package manager automatically (see below)
+endef
+
+define Package/s12-pro-signald/postinst
+#!/bin/sh
+set -e
+case "$$1" in
+	install)
+		/etc/init.d/s12-pro-signald enable
+		/etc/init.d/s12-pro-signald start
+		;;
+esac
+exit 0
 endef
 
 $(eval $(call BuildPackage,s12-pro-signald))
