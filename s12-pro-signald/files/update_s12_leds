@@ -1,0 +1,38 @@
+#!/bin/sh
+DEVICE=/dev/ttyUSB0
+
+set_led() {
+    local CSQ=$1
+    local LEVEL=0
+
+    # Map CSQ (0-31) to LED level (0-5)
+    if [ "$CSQ" -ge 28 ]; then       # Excellent signal (5 LEDs)
+        LEVEL=5
+    elif [ "$CSQ" -ge 21 ]; then     # Strong signal (4 LEDs)
+        LEVEL=4
+    elif [ "$CSQ" -ge 14 ]; then     # Medium signal (3 LEDs)
+        LEVEL=3
+    elif [ "$CSQ" -ge 7 ]; then      # Weak signal (2 LEDs)
+        LEVEL=2
+    elif [ "$CSQ" -ge 1 ]; then      # Very weak signal (1 LED)
+        LEVEL=1
+    else                             # No signal (0 LEDs)
+        LEVEL=0
+    fi
+
+    # Update LEDs
+    for i in 1 2 3 4 5; do
+        if [ "$i" -le "$LEVEL" ]; then
+            echo 1 > "/sys/class/leds/blue:signal$i/brightness" 2>/dev/null
+        else
+            echo 0 > "/sys/class/leds/blue:signal$i/brightness" 2>/dev/null
+        fi
+    done
+}
+
+[ ! -e "$DEVICE" ] && exit 0  # Exit if modem not found
+
+CSQ=$(sms_tool -d $DEVICE at AT+CSQ | awk -F'[,\ ]' '/^\+CSQ/ {print $2}')
+[ -z "$CSQ" ] && CSQ=0  # Default to 0 if no signal
+
+set_led $CSQ

@@ -1,0 +1,16 @@
+#!/bin/sh /etc/rc.common
+
+USE_PROCD=1
+START=95
+STOP=01
+
+start_service() {
+    procd_open_instance
+    procd_set_param command /bin/sh /sbin/s12-pro-signald
+    procd_close_instance
+}
+
+stop_service() {
+    pkill -9 -f s12-pro-signald 2>/dev/null
+    sleep 1
+}
