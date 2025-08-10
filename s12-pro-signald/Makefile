@@ -45,6 +45,12 @@ define Package/s12-pro-signald/install
 	# Install uci-defaults script for first boot
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
+
+	# Explicit fix in case build system ignores exec bits
+	chmod +x $(1)/etc/init.d/s12-pro-signald
+	chmod +x $(1)/sbin/s12-pro-signald
+	chmod +x $(1)/sbin/update_s12_leds
+	chmod +x $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
 
 define Package/s12-pro-signald/postinst
