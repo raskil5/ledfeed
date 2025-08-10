@@ -4,7 +4,7 @@ PKG_NAME:=s12-pro-signald
 PKG_VERSION:=1.0
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=YourName <your@email.com>
+PKG_MAINTAINER:=Raskan Mohamed <raskan23@gmail.com>
 PKG_LICENSE:=GPL-3.0
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,6 +20,11 @@ define Package/s12-pro-signald/description
   A service to monitor modem signal strength (CSQ) and display it via 5 LEDs.
 endef
 
+# Mark config file as persistent across upgrades
+define Package/s12-pro-signald/conffiles
+/etc/config/s12-pro-signald
+endef
+
 define Build/Configure
 endef
 
@@ -31,7 +36,7 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Executables
+	# Executable scripts
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/
 	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/
@@ -39,23 +44,14 @@ define Package/s12-pro-signald/install
 	# Config file
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
-
-	# Fix permissions for scripts so they're executable
-	chmod +x $(1)/etc/init.d/s12-pro-signald
-	chmod +x $(1)/sbin/s12-pro-signald
-	chmod +x $(1)/sbin/update_s12_leds
-	# Post-install script handled by OpenWrt package manager automatically (see below)
 endef
 
+# Use external postinst file
+# (Ensure ./files/postinst exists and is executable)
 define Package/s12-pro-signald/postinst
 #!/bin/sh
-set -e
-case "$$1" in
-	install)
-		/etc/init.d/s12-pro-signald enable
-		/etc/init.d/s12-pro-signald start
-		;;
-esac
+/etc/init.d/s12-pro-signald enable
+/etc/init.d/s12-pro-signald start
 exit 0
 endef
 
