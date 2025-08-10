@@ -21,37 +21,32 @@ define Package/s12-pro-signald/description
 endef
 
 define Build/Configure
+  # no configure step needed
 endef
 
 define Build/Compile
+  # no compile step needed
 endef
 
 define Package/s12-pro-signald/install
-	# Init script
+	# Install init script with executable permissions
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Executables
+	# Install executables with executable permissions
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/
 	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/
 
-	# Config file
+	# Install config file with correct permissions (readable only)
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
-	# UCI-defaults script for first boot (firmware builds)
+	# Install uci-defaults script for first boot
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
-
-	# Fix permissions explicitly to make scripts executable
-	chmod +x $(1)/etc/init.d/s12-pro-signald
-	chmod +x $(1)/sbin/s12-pro-signald
-	chmod +x $(1)/sbin/update_s12_leds
-	chmod +x $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
 
-# Post-install script for opkg installs
 define Package/s12-pro-signald/postinst
 #!/bin/sh
 set -e
