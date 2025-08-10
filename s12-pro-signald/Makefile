@@ -4,7 +4,7 @@ PKG_NAME:=s12-pro-signald
 PKG_VERSION:=1.0
 PKG_RELEASE:=1
 
-PKG_MAINTAINER:=Raskan Mohamed <raskan23@gmail.com>
+PKG_MAINTAINER:=Raskan <raskan23@gmail.com>
 PKG_LICENSE:=GPL-3.0
 
 include $(INCLUDE_DIR)/package.mk
@@ -20,11 +20,6 @@ define Package/s12-pro-signald/description
   A service to monitor modem signal strength (CSQ) and display it via 5 LEDs.
 endef
 
-# Mark config file as persistent across upgrades
-define Package/s12-pro-signald/conffiles
-/etc/config/s12-pro-signald
-endef
-
 define Build/Configure
 endef
 
@@ -36,7 +31,7 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Executable scripts
+	# Executables
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/
 	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/
@@ -44,14 +39,20 @@ define Package/s12-pro-signald/install
 	# Config file
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
+
+	# UCI-defaults script for first boot (firmware builds)
+	$(INSTALL_DIR) $(1)/etc/uci-defaults
+	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
 
-# Use external postinst file
-# (Ensure ./files/postinst exists and is executable)
+# Post-install script for opkg installs
 define Package/s12-pro-signald/postinst
 #!/bin/sh
-/etc/init.d/s12-pro-signald enable
-/etc/init.d/s12-pro-signald start
+set -e
+if [ "$$1" = "configure" ]; then
+	/etc/init.d/s12-pro-signald enable
+	/etc/init.d/s12-pro-signald start
+fi
 exit 0
 endef
 
