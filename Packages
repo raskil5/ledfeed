@@ -1,0 +1,5 @@
+Package: s12-pro-signald
+Version: 1.0-1
+Depends: sms-tool
+Section: utils
+Source: ledfeed
