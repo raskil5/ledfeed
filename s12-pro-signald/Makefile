@@ -20,10 +20,6 @@ define Package/s12-pro-signald/description
   A service to monitor modem signal strength (CSQ) and display it via 5 LEDs.
 endef
 
-define Package/s12-pro-signald/conffiles
-/etc/config/s12-pro-signald
-endef
-
 define Build/Configure
 endef
 
@@ -31,15 +27,22 @@ define Build/Compile
 endef
 
 define Package/s12-pro-signald/install
+	# Init script
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
+	# Executables
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/
 	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/
 
+	# Config file
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
+
+	# Post-install script
+	$(INSTALL_DIR) $(1)/CONTROL
+	$(INSTALL_BIN) ./files/postinst $(1)/CONTROL/postinst
 endef
 
 $(eval $(call BuildPackage,s12-pro-signald))

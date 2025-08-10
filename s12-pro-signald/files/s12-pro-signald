@@ -1,5 +1,5 @@
 #!/bin/sh
 while true; do
     /sbin/update_s12_leds
-    sleep 10  # Check every 10 seconds (adjust if needed)
+    sleep 60
 done
