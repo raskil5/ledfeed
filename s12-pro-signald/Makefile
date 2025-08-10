@@ -43,6 +43,12 @@ define Package/s12-pro-signald/install
 	# UCI-defaults script for first boot (firmware builds)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
+
+	# Fix permissions explicitly to make scripts executable
+	chmod +x $(1)/etc/init.d/s12-pro-signald
+	chmod +x $(1)/sbin/s12-pro-signald
+	chmod +x $(1)/sbin/update_s12_leds
+	chmod +x $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
 
 # Post-install script for opkg installs
