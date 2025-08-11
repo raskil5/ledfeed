@@ -31,7 +31,7 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Install executables with explicit permissions
+	# Install executables
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) --mode=755 ./files/s12-pro-signald $(1)/sbin/
 	$(INSTALL_BIN) --mode=755 ./files/update_s12_leds $(1)/sbin/
@@ -40,17 +40,24 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
-	# Install uci-defaults script
+	# Install uci-defaults script (with filename conversion)
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) --mode=755 ./files/99-s12-pro-signald $(1)/etc/uci-defaults/
+	$(INSTALL_BIN) --mode=755 ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
 
 define Package/s12-pro-signald/postinst
 #!/bin/sh
 if [ -z "$$IPKG_INSTROOT" ]; then
+	# Ensure permissions are correct
 	chmod 755 /sbin/s12-pro-signald /sbin/update_s12_leds >/dev/null 2>&1 || true
+	chmod 755 /etc/uci-defaults/99-s12-pro-signald >/dev/null 2>&1 || true
+	
+	# Enable and start service
 	/etc/init.d/s12-pro-signald enable
 	/etc/init.d/s12-pro-signald start
+	
+	# Run uci-defaults script
+	/etc/uci-defaults/99-s12-pro-signald || true
 fi
 exit 0
 endef
