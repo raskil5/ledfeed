@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=s12-pro-signald
-PKG_VERSION:=1.6
+PKG_VERSION:=1.7
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Raskan <raskan23@gmail.com>
@@ -29,29 +29,29 @@ define Build/Compile
 endef
 
 define Package/s12-pro-signald/install
-	# Init script
+	# Install init script
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Executables
+	# Install executables
 	$(INSTALL_DIR) $(1)/sbin
 	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/s12-pro-signald
 	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/update_s12_leds
 
-	# Config (0644)
+	# Install config file (not executable)
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
-	# UCI defaults (0755)
+	# Install uci-defaults script
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
 endef
-
 
 define Package/s12-pro-signald/postinst
 #!/bin/sh
 set -e
 if [ "$$1" = "configure" ]; then
+	chmod 755 /sbin/s12-pro-signald /sbin/update_s12_leds /etc/init.d/s12-pro-signald /etc/uci-defaults/99-s12-pro-signald || true
 	/etc/init.d/s12-pro-signald enable
 	/etc/init.d/s12-pro-signald start
 fi
