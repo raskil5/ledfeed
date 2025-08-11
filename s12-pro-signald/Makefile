@@ -1,7 +1,7 @@
 include $(TOPDIR)/rules.mk
 
 PKG_NAME:=s12-pro-signald
-PKG_VERSION:=1.7
+PKG_VERSION:=1.8
 PKG_RELEASE:=1
 
 PKG_MAINTAINER:=Raskan <raskan23@gmail.com>
@@ -21,11 +21,9 @@ define Package/s12-pro-signald/description
 endef
 
 define Build/Configure
-  # no configure step needed
 endef
 
 define Build/Compile
-  # no compile step needed
 endef
 
 define Package/s12-pro-signald/install
@@ -33,25 +31,24 @@ define Package/s12-pro-signald/install
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Install executables
+	# Install executables with explicit permissions
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/s12-pro-signald
-	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/update_s12_leds
+	$(INSTALL_BIN) --mode=755 ./files/s12-pro-signald $(1)/sbin/
+	$(INSTALL_BIN) --mode=755 ./files/update_s12_leds $(1)/sbin/
 
-	# Install config file (not executable)
+	# Install config file
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
 	# Install uci-defaults script
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
-	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
+	$(INSTALL_BIN) --mode=755 ./files/99-s12-pro-signald $(1)/etc/uci-defaults/
 endef
 
 define Package/s12-pro-signald/postinst
 #!/bin/sh
-set -e
-if [ "$$1" = "configure" ]; then
-	chmod 755 /sbin/s12-pro-signald /sbin/update_s12_leds /etc/init.d/s12-pro-signald /etc/uci-defaults/99-s12-pro-signald || true
+if [ -z "$$IPKG_INSTROOT" ]; then
+	chmod 755 /sbin/s12-pro-signald /sbin/update_s12_leds >/dev/null 2>&1 || true
 	/etc/init.d/s12-pro-signald enable
 	/etc/init.d/s12-pro-signald start
 fi
