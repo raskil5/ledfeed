@@ -29,28 +29,26 @@ define Build/Compile
 endef
 
 define Package/s12-pro-signald/install
-	# Install init script with executable permissions
+	# Install init script
 	$(INSTALL_DIR) $(1)/etc/init.d
 	$(INSTALL_BIN) ./files/s12-pro-signald.init $(1)/etc/init.d/s12-pro-signald
 
-	# Install executables with executable permissions
+	# Install executables
 	$(INSTALL_DIR) $(1)/sbin
-	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/
-	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/
+	$(INSTALL_BIN) ./files/s12-pro-signald $(1)/sbin/s12-pro-signald
+	$(INSTALL_BIN) ./files/update_s12_leds $(1)/sbin/update_s12_leds
 
-	# Install config file with correct permissions (readable only)
+	# Install config file
 	$(INSTALL_DIR) $(1)/etc/config
 	$(INSTALL_CONF) ./files/s12-pro-signald.config $(1)/etc/config/s12-pro-signald
 
-	# Install uci-defaults script for first boot
+	# Install uci-defaults script
 	$(INSTALL_DIR) $(1)/etc/uci-defaults
 	$(INSTALL_BIN) ./files/uci-defaults-s12-pro-signald $(1)/etc/uci-defaults/99-s12-pro-signald
 
-	# Explicit fix in case build system ignores exec bits
-	chmod +x $(1)/etc/init.d/s12-pro-signald
-	chmod +x $(1)/sbin/s12-pro-signald
-	chmod +x $(1)/sbin/update_s12_leds
-	chmod +x $(1)/etc/uci-defaults/99-s12-pro-signald
+	# Final safety chmod - must be LAST
+	find $(1) -type f \( -name s12-pro-signald -o -name update_s12_leds -o -name 99-s12-pro-signald \) -exec chmod 0755 {} \;
+	find $(1)/etc/init.d -type f -name s12-pro-signald -exec chmod 0755 {} \;
 endef
 
 define Package/s12-pro-signald/postinst
